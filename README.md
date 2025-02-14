@@ -48,4 +48,4 @@ PS: This api resources blocks requests from Nigeria but this was the only and be
 ## Limitations:
 While building the project, I exceeded the limits of the initial API resource, which required a subscription to continue using the resource. To avoid this, I had to search for an alternative API.
 
-The API I eventually settled on has a restriction to Nigeria, so I had to use a VPN to enable access. As a result, if the site is accessed without a VPN from Nigeria, the job listings may not load properly.
+The API I eventually settled on has a restriction to Nigeria, so I had to use a VPN to enable access. As a result, if the site is accessed without a VPN(with location set to the United States) from Nigeria, the job listings may not load properly.
