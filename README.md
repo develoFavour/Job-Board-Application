@@ -3,6 +3,8 @@
 ## Overview
 
 This Job Board Application is a modern, responsive web application built with Next.js, React, and TypeScript. It provides a platform for job seekers to search, view, and apply for job listings, as well as save interesting positions for later review.
+PS: This api resources blocks requests from Nigeria but this was the only and best free resource available, so vpn has to be used if visiting this site from Nigeria
+
 
 ## Features
 
