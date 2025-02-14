@@ -18,14 +18,15 @@ const Navigation = () => {
 		e.preventDefault();
 		router.push(`/jobs?search=${encodeURIComponent(searchQuery)}`);
 	};
-
 	return (
 		<nav className="bg-white shadow-md">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex justify-between h-16">
 					<div className="flex items-center">
 						<Link href="/" className="flex-shrink-0 flex items-center">
-							<span className="font-bold text-xl text-gray-800">JobBoard</span>
+							<span className="font-bold text-xl text-gray-800">
+								Job<span className="text-indigo-600">Board</span>
+							</span>
 						</Link>
 					</div>
 					<div className="flex justify-center items-center">

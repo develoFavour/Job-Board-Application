@@ -1,15 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useJobStore from "@/store/useJobStore";
 import JobCard from "@/components/home/JobCard";
 
 export default function SavedJobsPage() {
 	const { savedJobs } = useJobStore();
+	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
-		// This effect is needed to ensure the component re-renders after hydration
+		setMounted(true);
 	}, []);
+
+	if (!mounted) {
+		return null; // or a loading spinner
+	}
 
 	return (
 		<div className="container mx-auto px-4 py-8">
@@ -19,7 +24,7 @@ export default function SavedJobsPage() {
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 					{savedJobs.map((job) => (
-						<JobCard key={job.job_id} job={job} />
+						<JobCard key={job.id} job={job} />
 					))}
 				</div>
 			)}

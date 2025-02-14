@@ -1,72 +1,178 @@
 "use client";
 
 import { useState } from "react";
-import type { JobData } from "@/types";
-import ApplicationForm from "./ApplicationForm";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import {
+	Building,
+	MapPin,
+	Briefcase,
+	DollarSign,
+	Calendar,
+	BookmarkPlus,
+	BookmarkMinus,
+} from "lucide-react";
+import type { JobicyJob } from "@/types/index";
 import useJobStore from "@/store/useJobStore";
+import ApplicationForm from "./ApplicationForm";
+import SuccessModal from "./SuccessModal";
+import { toast } from "react-hot-toast";
 
-export default function JobDetails({ job }: { job: JobData }) {
+export default function JobDetails({ job }: { job: JobicyJob }) {
+	const { addSavedJob, removeSavedJob, isSaved, setAppliedJob, isApplied } =
+		useJobStore();
 	const [showApplicationForm, setShowApplicationForm] = useState(false);
-	const { savedJobs, addSavedJob, removeSavedJob } = useJobStore();
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
+	const jobSaved = isSaved(job.id);
+	const jobApplied = isApplied(job.id);
+	const router = useRouter();
 
-	const isJobSaved = savedJobs.some(
-		(savedJob) => savedJob.job_id === job.job_id
-	);
-
-	const handleSaveJob = () => {
-		if (isJobSaved) {
-			removeSavedJob(job.job_id);
+	const handleSaveToggle = () => {
+		if (jobSaved) {
+			removeSavedJob(job.id);
+			toast.success("Job Removed");
 		} else {
 			addSavedJob(job);
+			toast.success("Job Saved");
 		}
 	};
 
+	const handleApply = () => {
+		if (!jobApplied) {
+			setShowApplicationForm(true);
+		}
+	};
+
+	const handleApplicationSubmit = () => {
+		setShowApplicationForm(false);
+		setAppliedJob(job.id);
+		setShowSuccessModal(true);
+	};
+
+	const handleSuccessModalClose = () => {
+		setShowSuccessModal(false);
+		router.push("/");
+	};
+
 	return (
-		<div className="bg-white rounded-lg shadow-md p-6">
-			<h1 className="text-3xl font-bold mb-4">{job.job_title}</h1>
-			<p className="text-xl text-gray-600 mb-2">{job.job_country}</p>
-			<p className="text-lg text-gray-600 mb-4">{job.employer_name}</p>
-			<p className="text-lg font-semibold mb-4">Salary: ${job.job_salary}</p>
-			<div className="mb-6">
-				<h2 className="text-2xl font-semibold mb-2">Job Description</h2>
-				<p className="text-gray-700">{job.job_description}</p>
+		<div className="bg-white rounded-lg shadow-lg p-8">
+			{/* Header Section */}
+			<div className="flex items-start justify-between gap-6 mb-6 pb-6 border-b">
+				<div className="flex-1">
+					<h1 className="text-3xl font-bold text-gray-900 mb-4">
+						{job.jobTitle}
+					</h1>
+					<div className="flex flex-wrap gap-4 text-gray-600">
+						<div className="flex items-center">
+							<Building className="w-5 h-5 mr-2" />
+							{job.companyName}
+						</div>
+						<div className="flex items-center">
+							<MapPin className="w-5 h-5 mr-2" />
+							{job.jobGeo}
+						</div>
+						<div className="flex items-center">
+							<Briefcase className="w-5 h-5 mr-2" />
+							{job.jobType.join(", ")}
+						</div>
+						<div className="flex items-center">
+							<Calendar className="w-5 h-5 mr-2" />
+							Posted: {new Date(job.pubDate).toLocaleDateString()}
+						</div>
+					</div>
+				</div>
+				<div className="flex items-start gap-4">
+					{job.companyLogo && (
+						<div className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-100">
+							<Image
+								src={job.companyLogo || "/placeholder.svg"}
+								alt={`${job.companyName} logo`}
+								fill
+								className="object-cover"
+								sizes="80px"
+							/>
+						</div>
+					)}
+					<button
+						onClick={handleSaveToggle}
+						className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+						aria-label={jobSaved ? "Remove from saved jobs" : "Save job"}
+					>
+						{jobSaved ? (
+							<BookmarkMinus className="w-6 h-6 text-blue-500" />
+						) : (
+							<BookmarkPlus className="w-6 h-6 text-gray-400 hover:text-gray-600" />
+						)}
+					</button>
+				</div>
 			</div>
-			<div className="mb-6">
-				<h2 className="text-2xl font-semibold mb-2">Requirements</h2>
-				<ul className="list-disc list-inside text-gray-700">
-					{job.job_highlights.Qualifications?.map((req, index) => (
-						<li key={index}>{req}</li>
-					))}
-				</ul>
+
+			{/* Salary Section */}
+			{job.annualSalaryMin && job.annualSalaryMax && (
+				<div className="mb-6 p-4 bg-gray-50 rounded-lg">
+					<div className="flex items-center">
+						<DollarSign className="w-5 h-5 mr-2 text-green-600" />
+						<span className="text-lg font-medium">
+							{job.salaryCurrency} {job.annualSalaryMin.toLocaleString()} -{" "}
+							{job.annualSalaryMax.toLocaleString()} / year
+						</span>
+					</div>
+				</div>
+			)}
+
+			{/* Job Description */}
+			<div className="prose max-w-none mb-8">
+				<div dangerouslySetInnerHTML={{ __html: job.jobDescription }} />
 			</div>
-			<div className="mb-6">
-				<h2 className="text-2xl font-semibold mb-2">How to Apply</h2>
-				<a href={job.job_apply_link} className="text-blue-500 hover:underline">
-					Apply Here
-				</a>
-			</div>
-			<div className="flex gap-4">
+
+			{/* Action Buttons */}
+			<div className="flex gap-4 mt-8">
 				<button
-					onClick={() => setShowApplicationForm(true)}
-					className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+					onClick={handleApply}
+					className={`px-6 py-3 rounded-lg transition-colors ${
+						jobApplied
+							? "bg-green-500 text-white cursor-default"
+							: "bg-blue-600 text-white hover:bg-blue-700"
+					}`}
+					disabled={jobApplied}
 				>
-					Apply Now
+					{jobApplied ? "Applied" : "Apply Now"}
 				</button>
 				<button
-					onClick={handleSaveJob}
-					className={`px-6 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-						isJobSaved
-							? "bg-red-500 text-white hover:bg-red-600 focus:ring-red-500"
-							: "bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500"
+					onClick={handleSaveToggle}
+					className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
+						jobSaved
+							? "bg-red-100 text-red-600 hover:bg-red-200"
+							: "bg-gray-100 text-gray-800 hover:bg-gray-200"
 					}`}
 				>
-					{isJobSaved ? "Remove Saved Job" : "Save Job"}
+					{jobSaved ? (
+						<>
+							<BookmarkMinus className="w-5 h-5 mr-2" />
+							Remove from Saved
+						</>
+					) : (
+						<>
+							<BookmarkPlus className="w-5 h-5 mr-2" />
+							Save Job
+						</>
+					)}
 				</button>
 			</div>
+
 			{showApplicationForm && (
 				<ApplicationForm
-					jobId={job.job_id}
+					jobTitle={job.jobTitle}
 					onClose={() => setShowApplicationForm(false)}
+					onSubmit={handleApplicationSubmit}
+				/>
+			)}
+
+			{showSuccessModal && (
+				<SuccessModal
+					jobTitle={job.jobTitle}
+					companyName={job.companyName}
+					onClose={handleSuccessModalClose}
 				/>
 			)}
 		</div>
