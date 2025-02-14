@@ -44,3 +44,8 @@ PS: This api resources blocks requests from Nigeria but this was the only and be
 5. Built a responsive design that works seamlessly on both mobile and desktop devices
 6. Implemented server-side rendering for improved SEO and initial load performance
 7. Created a scalable architecture that allows for easy addition of new features and integrations
+
+## Limitations:
+While building the project, I exceeded the limits of the initial API resource, which required a subscription to continue using the resource. To avoid this, I had to search for an alternative API.
+
+The API I eventually settled on has a restriction to Nigeria, so I had to use a VPN to enable access. As a result, if the site is accessed without a VPN from Nigeria, the job listings may not load properly.
